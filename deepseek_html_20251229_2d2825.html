@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Paletes - SEDUC/SP</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Meta tags para SEO -->
+    <meta name="description" content="Dashboard de monitoramento de paletes do Centro de Distribuição SEDUC/SP">
+    <meta name="keywords" content="SEDUC, paletes, dashboard, monitoramento, educação, São Paulo">
+    <meta name="author" content="SEDUC/SP">
+    
+    <!-- CDN para Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    
+    <style>
+        /* ===== VARIÁVEIS DE CORES ===== */
+        :root {
+            /* Modo Escuro (padrão) */
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #ffffff; /* CORRIGIDO: Branco no modo escuro */
+            --text-secondary: #b0b0b0;
+            --accent-color: #4a9eff;
+            --accent-hover: #2d8cff;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --border-color: #444;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-mode {
+            /* Modo Claro */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f3f4;
+            --text-primary: #202124; /* Preto no modo claro */
+            --text-secondary: #5f6368;
+            --accent-color: #1a73e8;
+            --accent-hover: #0d62d9;
+            --success-color: #0d9d58;
+            --warning-color: #f9ab00;
+            --danger-color: #d93025;
+            --border-color: #dadce0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== ESTILOS GERAIS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary); /* CORRIGIDO: Herda cor do tema */
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        .logo-text p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .theme-toggle {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            width: 50px;
+            height: 26px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .theme-toggle i {
+            font-size: 0.8rem;
+            position: absolute;
+            transition: transform 0.3s;
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        .theme-toggle .fa-sun {
+            left: 5px;
+        }
+
+        .theme-toggle .fa-moon {
+            right: 5px;
+        }
+
+        .toggle-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            position: absolute;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+
+        .light-mode .toggle-thumb {
+            transform: translateX(24px);
+        }
+
+        /* ===== BOTÕES ===== */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: white; /* CORRIGIDO: Texto sempre branco nos botões */
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* ===== ÁREA DE UPLOAD ===== */
+        .upload-section {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .upload-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .upload-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        .data-info {
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary); /* CORRIGIDO */
+            min-width: 300px;
+        }
+
+        .data-info i {
+            color: var(--accent-color);
+            margin-right: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-color);
+            background-color: var(--bg-tertiary);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            margin-bottom: 10px;
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        .upload-area p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* ===== CARDS DE ESTATÍSTICAS ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        .stat-card .subtext {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-card.total-paletes {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .stat-card.total-escolas {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .stat-card.no-prazo {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .stat-card.fora-prazo {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary); /* CORRIGIDO */
+            background-color: var(--bg-tertiary);
+        }
+
+        .tab.active {
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
+            background-color: var(--bg-tertiary);
+        }
+
+        .tab-content {
+            display: none;
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        .tab-content p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        /* ===== GRÁFICOS ===== */
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* ===== TABELAS ===== */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary); /* CORRIGIDO */
+            font-weight: 500;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary); /* CORRIGIDO */
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status.dentro {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success-color);
+        }
+
+        .status.fora {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: var(--danger-color);
+        }
+
+        /* ===== FILTROS ===== */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+            flex: 1;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .filter-select, .filter-input {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary); /* CORRIGIDO */
+            width: 100%;
+        }
+
+        .tab-filter-section {
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .tab-filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+            flex: 1;
+        }
+
+        .tab-filter-group label {
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin-bottom: 5px;
+        }
+
+        /* ===== SELECT2 CUSTOM (TEMA ESCURO/CLARO) ===== */
+        .select2-container--default .select2-selection--single {
+            background-color: var(--bg-tertiary) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 6px !important;
+            height: 42px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-primary) !important;
+            line-height: 40px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: var(--text-primary) transparent transparent transparent !important;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent var(--text-primary) transparent !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+        }
+
+        .select2-container--default .select2-dropdown {
+            background-color: var(--bg-tertiary) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .select2-container--default .select2-results__option {
+            color: var(--text-primary) !important;
+            background-color: var(--bg-tertiary) !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--accent-color) !important;
+            color: white !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .data-info {
+                min-width: 100%;
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .upload-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-section, .tab-filter-section {
+                flex-direction: column;
+            }
+            
+            .filter-group, .tab-filter-group {
+                width: 100%;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .tab {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card .value {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
+            
+            .upload-area h3 {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .tab-content {
+                padding: 15px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== MENSAGENS ===== */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .message.error {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .message.info {
+            background-color: rgba(74, 158, 255, 0.1);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-boxes"></i>
+                <div class="logo-text">
+                    <h1>Dashboard de Paletes</h1>
+                    <p>SEDUC/SP - Centro de Distribuição</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <div class="toggle-thumb"></div>
+                </div>
+                <button class="btn btn-secondary" id="exportBtn" title="Exportar dados para Excel">
+                    <i class="fas fa-download"></i> Exportar Dados
+                </button>
+                <a href="https://www.educacao.sp.gov.br" target="_blank" class="btn btn-primary" title="Site da SEDUC/SP">
+                    <i class="fas fa-external-link-alt"></i> SEDUC/SP
+                </a>
+            </div>
+        </header>
+
+        <div class="upload-section">
+            <div class="upload-header">
+                <h2><i class="fas fa-sync-alt"></i> Atualização de Dados</h2>
+                <div class="data-info" id="dataInfo">
+                    <div>
+                        <i class="fas fa-database"></i>
+                        <span>Última atualização: <span id="lastUpdate">Nenhum arquivo carregado</span></span>
+                    </div>
+                    <div id="rowCount">0 registros</div>
+                </div>
+            </div>
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-file-excel"></i>
+                <h3>Arraste e solte seu arquivo Excel aqui</h3>
+                <p>Formatos suportados: .xlsx, .xls, .csv</p>
+                <p class="small">Colunas necessárias: Objeto, Nota Fiscal, Destinatário, Cidade, Situação, Postagem, Entrega, Unidade Distribuição</p>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+                <label for="fileInput" class="btn btn-primary">
+                    <i class="fas fa-file-upload"></i> Selecionar Arquivo Excel
+                </label>
+            </div>
+            <div id="messageArea" class="hidden"></div>
+        </div>
+
+        <div class="dashboard" id="dashboardStats">
+            <div class="stat-card total-paletes">
+                <h3><i class="fas fa-pallet"></i> Total de Paletes</h3>
+                <div class="value" id="totalPaletes">0</div>
+                <div class="subtext">Paletes cadastrados no sistema</div>
+            </div>
+            <div class="stat-card total-escolas">
+                <h3><i class="fas fa-school"></i> Escolas Distintas</h3>
+                <div class="value" id="totalEscolas">0</div>
+                <div class="subtext">Endereços diferentes atendidos</div>
+            </div>
+            <div class="stat-card no-prazo">
+                <h3><i class="fas fa-check-circle"></i> Dentro do Prazo</h3>
+                <div class="value" id="dentroPrazo">0</div>
+                <div class="subtext">Entregues dentro do prazo</div>
+            </div>
+            <div class="stat-card fora-prazo">
+                <h3><i class="fas fa-exclamation-circle"></i> Fora do Prazo</h3>
+                <div class="value" id="foraPrazo">0</div>
+                <div class="subtext">Entregues com atraso</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="tab1">
+                <i class="fas fa-chart-bar"></i> Visão Geral
+            </button>
+            <button class="tab" data-tab="tab2">
+                <i class="fas fa-list"></i> Lista de Paletes
+            </button>
+            <button class="tab" data-tab="tab3">
+                <i class="fas fa-school"></i> Por Escola
+            </button>
+            <button class="tab" data-tab="tab4">
+                <i class="fas fa-calendar-alt"></i> Análise por Mês
+            </button>
+            <button class="tab" data-tab="tab5">
+                <i class="fas fa-info-circle"></i> Ajuda
+            </button>
+        </div>
+
+        <!-- ABA 1: VISÃO GERAL -->
+        <div class="tab-content active" id="tab1">
+            <h2><i class="fas fa-chart-pie"></i> Visão Geral das Entregas</h2>
+            <p>Análise completa das entregas com filtros por cidade, unidade e status.</p>
+            
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label for="filterCity"><i class="fas fa-city"></i> Cidade</label>
+                    <select id="filterCity" class="filter-select">
+                        <option value="">Todas as cidades</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterUnidade"><i class="fas fa-warehouse"></i> Unidade de Distribuição</label>
+                    <select id="filterUnidade" class="filter-select">
+                        <option value="">Todas as unidades</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterStatus"><i class="fas fa-flag"></i> Status</label>
+                    <select id="filterStatus" class="filter-select">
+                        <option value="">Todos os status</option>
+                        <option value="Dentro do Prazo">Dentro do Prazo</option>
+                        <option value="Fora do Prazo">Fora do Prazo</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button class="btn btn-primary" id="applyFilter">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                    <button class="btn btn-secondary" id="clearFilter">
+                        <i class="fas fa-times"></i> Limpar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="cityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ABA 2: LISTA DE PALETES -->
+        <div class="tab-content" id="tab2">
+            <h2><i class="fas fa-list-ol"></i> Lista de Paletes</h2>
+            <p>Lista completa de todos os paletes cadastrados com possibilidade de filtro.</p>
+            
+            <div class="tab-filter-section">
+                <div class="tab-filter-group">
+                    <label for="filterPedidoPaletes"><i class="fas fa-file-invoice"></i> Número do Pedido</label>
+                    <select id="filterPedidoPaletes" class="filter-select">
+                        <option value="">Todos os pedidos</option>
+                    </select>
+                </div>
+                
+                <div class="tab-filter-group">
+                    <label for="filterObjetoPaletes"><i class="fas fa-barcode"></i> Número do Objeto</label>
+                    <select id="filterObjetoPaletes" class="filter-select">
+                        <option value="">Todos os objetos</option>
+                    </select>
+                </div>
+                
+                <div class="tab-filter-group">
+                    <label for="filterStatusPaletes"><i class="fas fa-flag"></i> Status</label>
+                    <select id="filterStatusPaletes" class="filter-select">
+                        <option value="">Todos os status</option>
+                        <option value="Dentro do Prazo">Dentro do Prazo</option>
+                        <option value="Fora do Prazo">Fora do Prazo</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button class="btn btn-primary" id="applyFilterPaletes">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                    <button class="btn btn-secondary" id="clearFilterPaletes">
+                        <i class="fas fa-redo"></i> Limpar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="paletesTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-barcode"></i> Objeto</th>
+                            <th><i class="fas fa-file-invoice"></i> Nota Fiscal</th>
+                            <th><i class="fas fa-user"></i> Destinatário</th>
+                            <th><i class="fas fa-city"></i> Cidade</th>
+                            <th><i class="fas fa-paper-plane"></i> Postagem</th>
+                            <th><i class="fas fa-truck"></i> Entrega</th>
+                            <th><i class="fas fa-flag"></i> Situação</th>
+                            <th><i class="fas fa-warehouse"></i> Unidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paletesTableBody">
+                        <tr id="noPaletesData">
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-database" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px; display: block;"></i>
+                                <p style="color: var(--text-secondary);">Nenhum dado carregado. Faça upload de um arquivo Excel para visualizar os dados.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <div id="paletesCount" style="color: var(--text-secondary);">Mostrando 0 paletes</div>
+                <button class="btn btn-secondary btn-small" id="exportTableBtn">
+                    <i class="fas fa-file-export"></i> Exportar Tabela
+                </button>
+            </div>
+        </div>
+
+        <!-- ABA 3: POR ESCOLA -->
+        <div class="tab-content" id="tab3">
+            <h2><i class="fas fa-school"></i> Paletes por Escola</h2>
+            <p>Escolas agrupadas por endereço completo + número completo do pedido (9 dígitos).</p>
+            
+            <div class="tab-filter-section">
+                <div class="tab-filter-group">
+                    <label for="filterPedidoEscolas"><i class="fas fa-file-invoice"></i> Número do Pedido</label>
+                    <select id="filterPedidoEscolas" class="filter-select">
+                        <option value="">Todos os pedidos</option>
+                    </select>
+                </div>
+                
+                <div class="tab-filter-group">
+                    <label for="filterUnidadeEscolas"><i class="fas fa-warehouse"></i> Unidade de Distribuição</label>
+                    <select id="filterUnidadeEscolas" class="filter-select">
+                        <option value="">Todas as unidades</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button class="btn btn-primary" id="applyFilterEscolas">
+                        <i class="fas fa-filter"></i> Aplicar Filtro
+                    </button>
+                    <button class="btn btn-secondary" id="clearFilterEscolas">
+                        <i class="fas fa-times"></i> Limpar Filtro
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="escolasTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-map-marker-alt"></i> Endereço</th>
+                            <th><i class="fas fa-city"></i> Cidade</th>
+                            <th><i class="fas fa-file-invoice"></i> Nº do Pedido</th>
+                            <th><i class="fas fa-pallet"></i> Qtd. Paletes</th>
+                            <th><i class="fas fa-flag"></i> Situação</th>
+                            <th><i class="fas fa-warehouse"></i> Unidade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="escolasTableBody">
+                        <tr id="noEscolasData">
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-school" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px; display: block;"></i>
+                                <p style="color: var(--text-secondary);">Nenhum dado carregado. Faça upload de um arquivo Excel para visualizar os dados.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 4: ANÁLISE POR MÊS -->
+        <div class="tab-content" id="tab4">
+            <h2><i class="fas fa-chart-line"></i> Análise por Mês de Postagem</h2>
+            <p>Análise baseada na coluna "Postagem" do arquivo Excel. Mostra desempenho ao longo do tempo.</p>
+            
+            <div class="tab-filter-section">
+                <div class="tab-filter-group">
+                    <label for="filterPedidoMeses"><i class="fas fa-file-invoice"></i> Número do Pedido</label>
+                    <select id="filterPedidoMeses" class="filter-select">
+                        <option value="">Todos os pedidos</option>
+                    </select>
+                </div>
+                
+                <div class="tab-filter-group">
+                    <label for="filterUnidadeMeses"><i class="fas fa-warehouse"></i> Unidade de Distribuição</label>
+                    <select id="filterUnidadeMeses" class="filter-select">
+                        <option value="">Todas as unidades</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button class="btn btn-primary" id="applyFilterMeses">
+                        <i class="fas fa-chart-bar"></i> Atualizar Gráficos
+                    </button>
+                    <button class="btn btn-secondary" id="clearFilterMeses">
+                        <i class="fas fa-redo"></i> Limpar Filtros
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="deliveryMonthChart"></canvas>
+            </div>
+            
+            <div class="table-container">
+                <table id="monthAnalysisTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-calendar"></i> Mês/Ano de Postagem</th>
+                            <th><i class="fas fa-pallet"></i> Total de Paletes</th>
+                            <th><i class="fas fa-check-circle"></i> Dentro do Prazo</th>
+                            <th><i class="fas fa-exclamation-circle"></i> Fora do Prazo</th>
+                            <th><i class="fas fa-percentage"></i> Taxa de Sucesso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthAnalysisTableBody">
+                        <tr id="noMonthData">
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-calendar-alt" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px; display: block;"></i>
+                                <p style="color: var(--text-secondary);">Nenhum dado carregado. Faça upload de um arquivo Excel para visualizar a análise mensal.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 5: AJUDA -->
+        <div class="tab-content" id="tab5">
+            <h2><i class="fas fa-question-circle"></i> Ajuda e Instruções</h2>
+            
+            <div style="background-color: var(--bg-tertiary); border-radius: 10px; padding: 25px; margin-bottom: 25px;">
+                <h3><i class="fas fa-info-circle"></i> Como Usar o Dashboard</h3>
+                <p>Este dashboard permite monitorar o status de paletes distribuídos pela SEDUC/SP.</p>
+                
+                <h4 style="margin-top: 20px;"><i class="fas fa-upload"></i> 1. Carregar Dados</h4>
+                <ul style="color: var(--text-secondary); margin-left: 20px; margin-bottom: 20px;">
+                    <li>Clique em "Selecionar Arquivo Excel" ou arraste um arquivo para a área destacada</li>
+                    <li>O arquivo deve conter as colunas: Objeto, Nota Fiscal, Destinatário, Cidade, Situação, Postagem, Entrega, Unidade Distribuição</li>
+                    <li>Formatos suportados: .xlsx, .xls, .csv</li>
+                </ul>
+                
+                <h4><i class="fas fa-filter"></i> 2. Filtrar Dados</h4>
+                <ul style="color: var(--text-secondary); margin-left: 20px; margin-bottom: 20px;">
+                    <li>Use os filtros em cada aba para visualizar dados específicos</li>
+                    <li>Filtre por cidade, unidade, status ou número do pedido</li>
+                    <li>Clique em "Limpar" para remover todos os filtros</li>
+                </ul>
+                
+                <h4><i class="fas fa-chart-bar"></i> 3. Visualizar Gráficos</h4>
+                <ul style="color: var(--text-secondary); margin-left: 20px; margin-bottom: 20px;">
+                    <li>Os gráficos são atualizados automaticamente conforme os dados são filtrados</li>
+                    <li>Passe o mouse sobre os gráficos para ver detalhes</li>
+                </ul>
+                
+                <h4><i class="fas fa-download"></i> 4. Exportar Dados</h4>
+                <ul style="color: var(--text-secondary); margin-left: 20px;">
+                    <li>Clique em "Exportar Dados" para baixar todos os dados em Excel</li>
+                    <li>Use "Exportar Tabela" na aba "Lista de Paletes" para exportar apenas os dados filtrados</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: var(--bg-tertiary); border-radius: 10px; padding: 25px;">
+                <h3><i class="fas fa-columns"></i> Estrutura das Abas</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px;">
+                        <h4><i class="fas fa-chart-pie"></i> Visão Geral</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Gráficos de status e distribuição por cidade com filtros interativos.</p>
+                    </div>
+                    
+                    <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px;">
+                        <h4><i class="fas fa-list"></i> Lista de Paletes</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Tabela completa com todos os paletes e filtros avançados.</p>
+                    </div>
+                    
+                    <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px;">
+                        <h4><i class="fas fa-school"></i> Por Escola</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Agrupamento por escola (endereço + pedido completo).</p>
+                    </div>
+                    
+                    <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px;">
+                        <h4><i class="fas fa-calendar-alt"></i> Análise por Mês</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Análise temporal baseada na data de postagem.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px; padding: 15px; border-left: 4px solid var(--accent-color); background-color: var(--bg-tertiary); border-radius: 0 8px 8px 0;">
+                <h4><i class="fas fa-exclamation-triangle"></i> Importante</h4>
+                <p style="color: var(--text-secondary);">Os dados não são armazenados no servidor. Todas as informações são processadas localmente no seu navegador para garantir a segurança dos dados.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Dashboard de Monitoramento de Paletes</strong> - Secretaria da Educação do Estado de São Paulo</p>
+            <p>© 2024 SEDUC/SP - Centro de Distribuição | Versão 2.0</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">
+                <i class="fas fa-shield-alt"></i> Processamento 100% local | 
+                <i class="fas fa-mobile-alt"></i> Totalmente responsivo |
+                <i class="fas fa-moon"></i> Tema claro/escuro
+            </p>
+        </footer>
+    </div>
+
+    <!-- ===== SCRIPTS EXTERNOS ===== -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- SheetJS (XLSX) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <script>
+        // ===== VARIÁVEIS GLOBAIS =====
+        let dadosPlanilha = [];
+        let dadosFiltrados = [];
+        let escolasAgrupadas = [];
+        let chartInstances = {};
+        
+        // Conjuntos para filtros
+        let cidadesDisponiveis = new Set();
+        let unidadesDisponiveis = new Set();
+        let pedidosDisponiveis = new Set();
+        let objetosDisponiveis = new Set();
+        
+        // ===== ELEMENTOS DOM =====
+        const themeToggle = document.getElementById('themeToggle');
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const exportBtn = document.getElementById('exportBtn');
+        const exportTableBtn = document.getElementById('exportTableBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Elementos de exibição
+        const totalPaletesElement = document.getElementById('totalPaletes');
+        const totalEscolasElement = document.getElementById('totalEscolas');
+        const dentroPrazoElement = document.getElementById('dentroPrazo');
+        const foraPrazoElement = document.getElementById('foraPrazo');
+        const lastUpdateElement = document.getElementById('lastUpdate');
+        const rowCountElement = document.getElementById('rowCount');
+        const paletesCountElement = document.getElementById('paletesCount');
+        const messageArea = document.getElementById('messageArea');
+        
+        // Tabelas
+        const paletesTableBody = document.getElementById('paletesTableBody');
+        const escolasTableBody = document.getElementById('escolasTableBody');
+        const monthAnalysisTableBody = document.getElementById('monthAnalysisTableBody');
+        
+        // ===== INICIALIZAÇÃO =====
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarEventListeners();
+            mostrarMensagem('info', 'Pronto para carregar dados. Faça upload de um arquivo Excel para começar.');
+            carregarDadosExemplo(); // Remove esta linha em produção
+        });
+        
+        // ===== FUNÇÕES DE INICIALIZAÇÃO =====
+        function inicializarEventListeners() {
+            // Alternar tema
+            themeToggle.addEventListener('click', alternarTema);
+            
+            // Upload de arquivo
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+            
+            // Tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    ativarTab(tabId);
+                });
+            });
+            
+            // Botões de exportação
+            exportBtn.addEventListener('click', exportarDadosCompletos);
+            if (exportTableBtn) {
+                exportTableBtn.addEventListener('click', exportarTabelaPaletes);
+            }
+            
+            // Filtros - Visão Geral
+            document.getElementById('applyFilter')?.addEventListener('click', aplicarFiltrosVisaoGeral);
+            document.getElementById('clearFilter')?.addEventListener('click', limparFiltrosVisaoGeral);
+            
+            // Filtros - Lista de Paletes
+            document.getElementById('applyFilterPaletes')?.addEventListener('click', aplicarFiltrosPaletes);
+            document.getElementById('clearFilterPaletes')?.addEventListener('click', limparFiltrosPaletes);
+            
+            // Filtros - Por Escola
+            document.getElementById('applyFilterEscolas')?.addEventListener('click', aplicarFiltrosEscolas);
+            document.getElementById('clearFilterEscolas')?.addEventListener('click', limparFiltrosEscolas);
+            
+            // Filtros - Análise por Mês
+            document.getElementById('applyFilterMeses')?.addEventListener('click', aplicarFiltrosMeses);
+            document.getElementById('clearFilterMeses')?.addEventListener('click', limparFiltrosMeses);
+            
+            // Select2
+            inicializarSelect2();
+        }
+        
+        function inicializarSelect2() {
+            // Inicializar todos os selects com Select2
+            $('.filter-select').select2({
+                placeholder: "Selecione uma opção",
+                allowClear: true,
+                width: '100%',
+                language: 'pt-BR'
+            });
+            
+            // Atualizar tema do Select2
+            atualizarTemaSelect2();
+        }
+        
+        // ===== FUNÇÕES DE TEMA =====
+        function alternarTema() {
+            document.body.classList.toggle('light-mode');
+            const isLightMode = document.body.classList.contains('light-mode');
+            localStorage.setItem('tema', isLightMode ? 'claro' : 'escuro');
+            atualizarTemaSelect2();
+            atualizarCoresGraficos();
+        }
+        
+        function carregarPreferenciaTema() {
+            const temaSalvo = localStorage.getItem('tema');
+            if (temaSalvo === 'claro') {
+                document.body.classList.add('light-mode');
+            }
+        }
+        
+        function atualizarTemaSelect2() {
+            const isLightMode = document.body.classList.contains('light-mode');
+            const bgColor = isLightMode ? '#f1f3f4' : '#2d2d2d';
+            const textColor = isLightMode ? '#202124' : '#ffffff';
+            const borderColor = isLightMode ? '#dadce0' : '#444';
+            
+            $('.select2-container--default .select2-selection--single').css({
+                'background-color': bgColor,
+                'border-color': borderColor,
+                'color': textColor
+            });
+            
+            $('.select2-container--default .select2-selection--single .select2-selection__rendered').css('color', textColor);
+            $('.select2-container--default .select2-dropdown').css({
+                'background-color': bgColor,
+                'border-color': borderColor
+            });
+            
+            $('.select2-container--default .select2-results__option').css({
+                'color': textColor,
+                'background-color': bgColor
+            });
+        }
+        
+        function atualizarCoresGraficos() {
+            const isLightMode = document.body.classList.contains('light-mode');
+            const textColor = isLightMode ? '#202124' : '#ffffff';
+            const gridColor = isLightMode ? 'rgba(218, 220, 224, 0.5)' : 'rgba(68, 68, 68, 0.5)';
+            
+            Object.values(chartInstances).forEach(chart => {
+                if (chart.options) {
+                    // Atualizar cores dos textos
+                    if (chart.options.scales) {
+                        if (chart.options.scales.x && chart.options.scales.x.ticks) {
+                            chart.options.scales.x.ticks.color = textColor;
+                        }
+                        if (chart.options.scales.y && chart.options.scales.y.ticks) {
+                            chart.options.scales.y.ticks.color = textColor;
+                        }
+                        if (chart.options.scales.x && chart.options.scales.x.grid) {
+                            chart.options.scales.x.grid.color = gridColor;
+                        }
+                        if (chart.options.scales.y && chart.options.scales.y.grid) {
+                            chart.options.scales.y.grid.color = gridColor;
+                        }
+                    }
+                    
+                    // Atualizar legendas
+                    if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                        chart.options.plugins.legend.labels.color = textColor;
+                    }
+                    
+                    // Atualizar títulos
+                    if (chart.options.plugins && chart.options.plugins.title) {
+                        chart.options.plugins.title.color = textColor;
+                    }
+                    
+                    chart.update();
+                }
+            });
+        }
+        
+        // ===== FUNÇÕES DE UPLOAD =====
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processarArquivo(file);
+            }
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.style.borderColor = 'var(--accent-color)';
+            uploadArea.style.backgroundColor = 'var(--bg-tertiary)';
+        }
+        
+        function handleDragLeave() {
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.backgroundColor = 'transparent';
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.style.borderColor = 'var(--border-color)';
+            uploadArea.style.backgroundColor = 'transparent';
+            
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                processarArquivo(file);
+            }
+        }
+        
+        async function processarArquivo(file) {
+            mostrarMensagem('info', `Processando arquivo: ${file.name}...`, true);
+            
+            try {
+                // Verificar extensão
+                const extensao = file.name.split('.').pop().toLowerCase();
+                if (!['xlsx', 'xls', 'csv'].includes(extensao)) {
+                    throw new Error('Formato de arquivo não suportado. Use .xlsx, .xls ou .csv');
+                }
+                
+                // Ler arquivo
+                const data = await lerArquivo(file);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Obter primeira planilha
+                const primeiraPlanilha = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[primeiraPlanilha];
+                
+                // Converter para JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                if (jsonData.length < 2) {
+                    throw new Error('Arquivo vazio ou com poucos dados');
+                }
+                
+                // Processar dados
+                const headers = jsonData[0];
+                const rows = jsonData.slice(1);
+                
+                processarDados(headers, rows);
+                
+                // Atualizar interface
+                atualizarDashboard();
+                atualizarListasFiltros();
+                atualizarGraficos();
+                atualizarTabelas();
+                
+                // Atualizar informações do arquivo
+                lastUpdateElement.textContent = new Date().toLocaleString('pt-BR');
+                rowCountElement.textContent = `${rows.length} registros`;
+                
+                mostrarMensagem('success', `Arquivo processado com sucesso! ${rows.length} registros carregados.`);
+                
+            } catch (error) {
+                console.error('Erro ao processar arquivo:', error);
+                mostrarMensagem('error', `Erro: ${error.message}`);
+            }
+        }
+        
+        function lerArquivo(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = function(e) {
+                    reject(new Error('Erro ao ler o arquivo'));
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // ===== PROCESSAMENTO DE DADOS =====
+        function processarDados(headers, rows) {
+            // Limpar dados anteriores
+            dadosPlanilha = [];
+            cidadesDisponiveis.clear();
+            unidadesDisponiveis.clear();
+            pedidosDisponiveis.clear();
+            objetosDisponiveis.clear();
+            
+            // Mapear índices das colunas
+            const colIndices = {
+                objeto: headers.findIndex(h => h.toLowerCase().includes('objeto')),
+                notaFiscal: headers.findIndex(h => h.toLowerCase().includes('nota') || h.toLowerCase().includes('fiscal')),
+                destinatario: headers.findIndex(h => h.toLowerCase().includes('destinatário') || h.toLowerCase().includes('destinatario')),
+                cidade: headers.findIndex(h => h.toLowerCase().includes('cidade')),
+                situacao: headers.findIndex(h => h.toLowerCase().includes('situação') || h.toLowerCase().includes('situacao')),
+                postagem: headers.findIndex(h => h.toLowerCase().includes('postagem')),
+                entrega: headers.findIndex(h => h.toLowerCase().includes('entrega')),
+                unidadeDistribuicao: headers.findIndex(h => 
+                    h.toLowerCase().includes('unidade') || h.toLowerCase().includes('distribuição') || h.toLowerCase().includes('distribuicao')
+                ),
+                logradouro: headers.findIndex(h => h.toLowerCase().includes('logradouro') || h.toLowerCase().includes('endereço') || h.toLowerCase().includes('endereco'))
+            };
+            
+            // Processar cada linha
+            rows.forEach((row, index) => {
+                if (row.length > 0) {
+                    const palete = {
+                        id: index + 1,
+                        objeto: String(row[colIndices.objeto] || '').trim(),
+                        notaFiscal: String(row[colIndices.notaFiscal] || '').trim(),
+                        destinatario: (row[colIndices.destinatario] || '').toString().trim(),
+                        cidade: (row[colIndices.cidade] || '').toString().trim(),
+                        situacao: (row[colIndices.situacao] || '').toString().trim(),
+                        postagem: formatarData(row[colIndices.postagem]),
+                        entrega: formatarData(row[colIndices.entrega]),
+                        unidadeDistribuicao: (row[colIndices.unidadeDistribuicao] || '').toString().trim(),
+                        logradouro: (row[colIndices.logradouro] || '').toString().trim()
+                    };
+                    
+                    // Adicionar aos conjuntos para filtros
+                    if (palete.cidade) cidadesDisponiveis.add(palete.cidade);
+                    if (palete.unidadeDistribuicao) unidadesDisponiveis.add(palete.unidadeDistribuicao);
+                    if (palete.notaFiscal) pedidosDisponiveis.add(palete.notaFiscal);
+                    if (palete.objeto) objetosDisponiveis.add(palete.objeto);
+                    
+                    // Extrair mês/ano da postagem
+                    if (palete.postagem) {
+                        const dataPostagem = extrairData(palete.postagem);
+                        if (dataPostagem) {
+                            palete.mesPostagem = dataPostagem.mes;
+                            palete.anoPostagem = dataPostagem.ano;
+                            palete.mesAnoPostagem = `${dataPostagem.mesNome}/${dataPostagem.ano}`;
+                        }
+                    }
+                    
+                    dadosPlanilha.push(palete);
+                }
+            });
+            
+            // Inicialmente, dados filtrados são todos os dados
+            dadosFiltrados = [...dadosPlanilha];
+            
+            // Agrupar por escola
+            agruparPorEscola();
+        }
+        
+        function agruparPorEscola() {
+            const escolasMap = new Map();
+            
+            dadosPlanilha.forEach(palete => {
+                const chaveEscola = `${palete.logradouro}_${palete.cidade}_${palete.notaFiscal}`;
+                
+                if (!escolasMap.has(chaveEscola)) {
+                    escolasMap.set(chaveEscola, {
+                        endereco: palete.logradouro,
+                        cidade: palete.cidade,
+                        notaFiscalCompleta: palete.notaFiscal,
+                        unidadeDistribuicao: palete.unidadeDistribuicao,
+                        paletes: [],
+                        situacao: 'Desconhecida'
+                    });
+                }
+                
+                const escola = escolasMap.get(chaveEscola);
+                escola.paletes.push(palete);
+                
+                // Definir situação da escola
+                if (palete.situacao === 'Fora do Prazo') {
+                    escola.situacao = 'Fora do Prazo';
+                } else if (escola.situacao !== 'Fora do Prazo' && palete.situacao === 'Dentro do Prazo') {
+                    escola.situacao = 'Dentro do Prazo';
+                }
+            });
+            
+            escolasAgrupadas = Array.from(escolasMap.values());
+            escolasAgrupadas.sort((a, b) => a.cidade.localeCompare(b.cidade));
+        }
+        
+        // ===== FUNÇÕES DE FORMATAÇÃO =====
+        function formatarData(data) {
+            if (!data) return '';
+            
+            if (typeof data === 'string' && data.includes('/')) {
+                return data;
+            }
+            
+            // Se for número serial do Excel
+            if (typeof data === 'number') {
+                const date = new Date((data - 25569) * 86400 * 1000);
+                return date.toLocaleDateString('pt-BR');
+            }
+            
+            return String(data);
+        }
+        
+        function extrairData(dataStr) {
+            if (!dataStr) return null;
+            
+            const partes = dataStr.toString().split('/');
+            if (partes.length >= 2) {
+                const dia = parseInt(partes[0]);
+                const mes = parseInt(partes[1]);
+                let ano = partes.length >= 3 ? parseInt(partes[2]) : new Date().getFullYear();
+                
+                if (ano < 100) {
+                    ano += 2000;
+                }
+                
+                return {
+                    dia: dia,
+                    mes: mes,
+                    ano: ano,
+                    mesNome: obterNomeMes(mes),
+                    dataCompleta: `${dia.toString().padStart(2, '0')}/${mes.toString().padStart(2, '0')}/${ano}`
+                };
+            }
+            
+            return null;
+        }
+        
+        function obterNomeMes(numero) {
+            const meses = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            return meses[numero - 1] || 'Desconhecido';
+        }
+        
+        // ===== FUNÇÕES DE INTERFACE =====
+        function ativarTab(tabId) {
+            // Remover active de todas as tabs
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Adicionar active à tab clicada
+            const tabAtiva = document.querySelector(`[data-tab="${tabId}"]`);
+            const conteudoAtivo = document.getElementById(tabId);
+            
+            if (tabAtiva) tabAtiva.classList.add('active');
+            if (conteudoAtivo) conteudoAtivo.classList.add('active');
+            
+            // Atualizar gráficos se necessário
+            if (tabId === 'tab1' && dadosPlanilha.length > 0) {
+                atualizarGraficos();
+            }
+        }
+        
+        function atualizarDashboard() {
+            // Total de paletes
+            totalPaletesElement.textContent = dadosPlanilha.length;
+            
+            // Total de escolas distintas
+            totalEscolasElement.textContent = escolasAgrupadas.length;
+            
+            // Dentro do prazo
+            const dentroPrazo = dadosPlanilha.filter(p => p.situacao === 'Dentro do Prazo').length;
+            dentroPrazoElement.textContent = dentroPrazo;
+            
+            // Fora do prazo
+            const foraPrazo = dadosPlanilha.filter(p => p.situacao === 'Fora do Prazo').length;
+            foraPrazoElement.textContent = foraPrazo;
+        }
+        
+        function atualizarListasFiltros() {
+            // Ordenar listas
+            const cidadesOrdenadas = Array.from(cidadesDisponiveis).sort();
+            const unidadesOrdenadas = Array.from(unidadesDisponiveis).sort();
+            const pedidosOrdenados = Array.from(pedidosDisponiveis).sort();
+            const objetosOrdenados = Array.from(objetosDisponiveis).sort();
+            
+            // Atualizar filtros de cidade
+            atualizarSelect2Options('#filterCity', cidadesOrdenadas, 'Todas as cidades');
+            atualizarSelect2Options('#filterUnidade', unidadesOrdenadas, 'Todas as unidades');
+            atualizarSelect2Options('#filterPedidoPaletes', pedidosOrdenados, 'Todos os pedidos');
+            atualizarSelect2Options('#filterObjetoPaletes', objetosOrdenados, 'Todos os objetos');
+            atualizarSelect2Options('#filterPedidoEscolas', pedidosOrdenados, 'Todos os pedidos');
+            atualizarSelect2Options('#filterUnidadeEscolas', unidadesOrdenadas, 'Todas as unidades');
+            atualizarSelect2Options('#filterPedidoMeses', pedidosOrdenados, 'Todos os pedidos');
+            atualizarSelect2Options('#filterUnidadeMeses', unidadesOrdenadas, 'Todas as unidades');
+        }
+        
+        function atualizarSelect2Options(selector, options, placeholder) {
+            $(selector).empty();
+            $(selector).append(`<option value="">${placeholder}</option>`);
+            options.forEach(option => {
+                $(selector).append(`<option value="${option}">${option}</option>`);
+            });
+            $(selector).trigger('change');
+        }
+        
+        // ===== FUNÇÕES DE GRÁFICOS =====
+        function atualizarGraficos() {
+            if (dadosPlanilha.length === 0) return;
+            
+            criarGraficoStatus();
+            criarGraficoCidades();
+            criarGraficoMensal();
+        }
+        
+        function criarGraficoStatus() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            const dentroPrazo = dadosFiltrados.filter(p => p.situacao === 'Dentro do Prazo').length;
+            const foraPrazo = dadosFiltrados.filter(p => p.situacao === 'Fora do Prazo').length;
+            
+            if (chartInstances.statusChart) {
+                chartInstances.statusChart.destroy();
+            }
+            
+            chartInstances.statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Dentro do Prazo', 'Fora do Prazo'],
+                    datasets: [{
+                        data: [dentroPrazo, foraPrazo],
+                        backgroundColor: ['#4CAF50', '#F44336'],
+                        borderColor: ['#388E3C', '#D32F2F'],
+                        borderWidth: 2
+                    }]
+                },
+                options: getChartOptions('Situação das Entregas')
+            });
+        }
+        
+        function criarGraficoCidades() {
+            const ctx = document.getElementById('cityChart').getContext('2d');
+            const cidadesMap = new Map();
+            
+            dadosFiltrados.forEach(palete => {
+                if (palete.cidade) {
+                    cidadesMap.set(palete.cidade, (cidadesMap.get(palete.cidade) || 0) + 1);
+                }
+            });
+            
+            // Top 10 cidades
+            const cidadesTop10 = Array.from(cidadesMap.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            const labels = cidadesTop10.map(item => item[0]);
+            const data = cidadesTop10.map(item => item[1]);
+            
+            if (chartInstances.cityChart) {
+                chartInstances.cityChart.destroy();
+            }
+            
+            chartInstances.cityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Paletes por Cidade',
+                        data: data,
+                        backgroundColor: '#4A9EFF',
+                        borderColor: '#1976D2',
+                        borderWidth: 1
+                    }]
+                },
+                options: getChartOptions('Top 10 Cidades por Volume')
+            });
+        }
+        
+        function criarGraficoMensal() {
+            const ctx = document.getElementById('deliveryMonthChart').getContext('2d');
+            const mesesMap = new Map();
+            
+            // Usar dadosFiltrados ou aplicar filtros específicos
+            let dadosParaGrafico = dadosFiltrados;
+            const pedidoFiltro = $('#filterPedidoMeses').val();
+            const unidadeFiltro = $('#filterUnidadeMeses').val();
+            
+            if (pedidoFiltro || unidadeFiltro) {
+                dadosParaGrafico = dadosPlanilha.filter(palete => {
+                    const matchPedido = !pedidoFiltro || palete.notaFiscal === pedidoFiltro;
+                    const matchUnidade = !unidadeFiltro || palete.unidadeDistribuicao === unidadeFiltro;
+                    return matchPedido && matchUnidade;
+                });
+            }
+            
+            dadosParaGrafico.forEach(palete => {
+                if (palete.mesAnoPostagem) {
+                    if (!mesesMap.has(palete.mesAnoPostagem)) {
+                        mesesMap.set(palete.mesAnoPostagem, { dentro: 0, fora: 0, total: 0 });
+                    }
+                    const mes = mesesMap.get(palete.mesAnoPostagem);
+                    mes.total++;
+                    if (palete.situacao === 'Dentro do Prazo') mes.dentro++;
+                    if (palete.situacao === 'Fora do Prazo') mes.fora++;
+                }
+            });
+            
+            // Ordenar cronologicamente
+            const mesesOrdenados = Array.from(mesesMap.entries())
+                .sort((a, b) => {
+                    const [mesA, anoA] = a[0].split('/').map(Number);
+                    const [mesB, anoB] = b[0].split('/').map(Number);
+                    return anoA - anoB || mesA - mesB;
+                });
+            
+            const labels = mesesOrdenados.map(item => item[0]);
+            const dentro = mesesOrdenados.map(item => item[1].dentro);
+            const fora = mesesOrdenados.map(item => item[1].fora);
+            
+            if (chartInstances.deliveryMonthChart) {
+                chartInstances.deliveryMonthChart.destroy();
+            }
+            
+            chartInstances.deliveryMonthChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Dentro do Prazo',
+                            data: dentro,
+                            backgroundColor: '#4CAF50',
+                            borderColor: '#388E3C',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Fora do Prazo',
+                            data: fora,
+                            backgroundColor: '#F44336',
+                            borderColor: '#D32F2F',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: getChartOptions('Entregas por Mês de Postagem')
+            });
+        }
+        
+        function getChartOptions(title) {
+            const isLightMode = document.body.classList.contains('light-mode');
+            const textColor = isLightMode ? '#202124' : '#ffffff';
+            const gridColor = isLightMode ? 'rgba(218, 220, 224, 0.5)' : 'rgba(68, 68, 68, 0.5)';
+            
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: textColor }
+                    },
+                    title: {
+                        display: true,
+                        text: title,
+                        color: textColor,
+                        font: { size: 16 }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    }
+                }
+            };
+        }
+        
+        // ===== FUNÇÕES DE TABELAS =====
+        function atualizarTabelas() {
+            atualizarTabelaPaletes();
+            atualizarTabelaEscolas();
+            atualizarTabelaMensal();
+        }
+        
+        function atualizarTabelaPaletes() {
+            let dadosParaTabela = dadosPlanilha;
+            
+            // Aplicar filtros
+            const pedidoFiltro = $('#filterPedidoPaletes').val();
+            const objetoFiltro = $('#filterObjetoPaletes').val();
+            const statusFiltro = $('#filterStatusPaletes').val();
+            
+            if (pedidoFiltro || objetoFiltro || statusFiltro) {
+                dadosParaTabela = dadosPlanilha.filter(palete => {
+                    const matchPedido = !pedidoFiltro || palete.notaFiscal === pedidoFiltro;
+                    const matchObjeto = !objetoFiltro || palete.objeto === objetoFiltro;
+                    const matchStatus = !statusFiltro || palete.situacao === statusFiltro;
+                    return matchPedido && matchObjeto && matchStatus;
+                });
+            }
+            
+            // Atualizar tabela
+            if (dadosParaTabela.length === 0) {
+                document.getElementById('noPaletesData').style.display = 'table-row';
+                paletesTableBody.innerHTML = '';
+                paletesTableBody.appendChild(document.getElementById('noPaletesData'));
+                paletesCountElement.textContent = 'Mostrando 0 paletes';
+            } else {
+                document.getElementById('noPaletesData').style.display = 'none';
+                paletesTableBody.innerHTML = '';
+                
+                dadosParaTabela.forEach(palete => {
+                    const row = document.createElement('tr');
+                    const statusClass = palete.situacao === 'Dentro do Prazo' ? 'dentro' : 'fora';
+                    
+                    row.innerHTML = `
+                        <td>${palete.objeto || '-'}</td>
+                        <td>${palete.notaFiscal || '-'}</td>
+                        <td>${palete.destinatario || '-'}</td>
+                        <td>${palete.cidade || '-'}</td>
+                        <td>${palete.postagem || '-'}</td>
+                        <td>${palete.entrega || '-'}</td>
+                        <td><span class="status ${statusClass}">${palete.situacao || 'Desconhecida'}</span></td>
+                        <td>${palete.unidadeDistribuicao || '-'}</td>
+                    `;
+                    
+                    paletesTableBody.appendChild(row);
+                });
+                
+                paletesCountElement.textContent = `Mostrando ${dadosParaTabela.length} de ${dadosPlanilha.length} paletes`;
+            }
+        }
+        
+        function atualizarTabelaEscolas() {
+            let escolasFiltradas = escolasAgrupadas;
+            
+            const pedidoFiltro = $('#filterPedidoEscolas').val();
+            const unidadeFiltro = $('#filterUnidadeEscolas').val();
+            
+            if (pedidoFiltro || unidadeFiltro) {
+                escolasFiltradas = escolasAgrupadas.filter(escola => {
+                    const matchPedido = !pedidoFiltro || escola.notaFiscalCompleta === pedidoFiltro;
+                    const matchUnidade = !unidadeFiltro || escola.unidadeDistribuicao === unidadeFiltro;
+                    return matchPedido && matchUnidade;
+                });
+            }
+            
+            if (escolasFiltradas.length === 0) {
+                document.getElementById('noEscolasData').style.display = 'table-row';
+                escolasTableBody.innerHTML = '';
+                escolasTableBody.appendChild(document.getElementById('noEscolasData'));
+            } else {
+                document.getElementById('noEscolasData').style.display = 'none';
+                escolasTableBody.innerHTML = '';
+                
+                escolasFiltradas.forEach(escola => {
+                    const row = document.createElement('tr');
+                    const statusClass = escola.situacao === 'Dentro do Prazo' ? 'dentro' : 'fora';
+                    
+                    row.innerHTML = `
+                        <td>${escola.endereco || '-'}</td>
+                        <td>${escola.cidade || '-'}</td>
+                        <td>${escola.notaFiscalCompleta || '-'}</td>
+                        <td>${escola.paletes.length}</td>
+                        <td><span class="status ${statusClass}">${escola.situacao}</span></td>
+                        <td>${escola.unidadeDistribuicao || '-'}</td>
+                    `;
+                    
+                    escolasTableBody.appendChild(row);
+                });
+            }
+        }
+        
+        function atualizarTabelaMensal() {
+            const mesesMap = new Map();
+            
+            let dadosParaAnalise = dadosPlanilha;
+            const pedidoFiltro = $('#filterPedidoMeses').val();
+            const unidadeFiltro = $('#filterUnidadeMeses').val();
+            
+            if (pedidoFiltro || unidadeFiltro) {
+                dadosParaAnalise = dadosPlanilha.filter(palete => {
+                    const matchPedido = !pedidoFiltro || palete.notaFiscal === pedidoFiltro;
+                    const matchUnidade = !unidadeFiltro || palete.unidadeDistribuicao === unidadeFiltro;
+                    return matchPedido && matchUnidade;
+                });
+            }
+            
+            dadosParaAnalise.forEach(palete => {
+                if (palete.mesAnoPostagem) {
+                    if (!mesesMap.has(palete.mesAnoPostagem)) {
+                        mesesMap.set(palete.mesAnoPostagem, { dentro: 0, fora: 0, total: 0 });
+                    }
+                    const mes = mesesMap.get(palete.mesAnoPostagem);
+                    mes.total++;
+                    if (palete.situacao === 'Dentro do Prazo') mes.dentro++;
+                    if (palete.situacao === 'Fora do Prazo') mes.fora++;
+                }
+            });
+            
+            const mesesOrdenados = Array.from(mesesMap.entries())
+                .sort((a, b) => {
+                    const [mesA, anoA] = a[0].split('/').map(Number);
+                    const [mesB, anoB] = b[0].split('/').map(Number);
+                    return anoA - anoB || mesA - mesB;
+                });
+            
+            if (mesesOrdenados.length === 0) {
+                document.getElementById('noMonthData').style.display = 'table-row';
+                monthAnalysisTableBody.innerHTML = '';
+                monthAnalysisTableBody.appendChild(document.getElementById('noMonthData'));
+            } else {
+                document.getElementById('noMonthData').style.display = 'none';
+                monthAnalysisTableBody.innerHTML = '';
+                
+                mesesOrdenados.forEach(([mesAno, dados]) => {
+                    const taxaSucesso = dados.total > 0 ? ((dados.dentro / dados.total) * 100).toFixed(1) : '0.0';
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${mesAno}</td>
+                        <td>${dados.total}</td>
+                        <td>${dados.dentro}</td>
+                        <td>${dados.fora}</td>
+                        <td><strong>${taxaSucesso}%</strong></td>
+                    `;
+                    
+                    monthAnalysisTableBody.appendChild(row);
+                });
+            }
+        }
+        
+        // ===== FUNÇÕES DE FILTROS =====
+        function aplicarFiltrosVisaoGeral() {
+            dadosFiltrados = [...dadosPlanilha];
+            
+            const cidadeFiltro = $('#filterCity').val();
+            const unidadeFiltro = $('#filterUnidade').val();
+            const statusFiltro = $('#filterStatus').val();
+            
+            if (cidadeFiltro) {
+                dadosFiltrados = dadosFiltrados.filter(p => p.cidade === cidadeFiltro);
+            }
+            if (unidadeFiltro) {
+                dadosFiltrados = dadosFiltrados.filter(p => p.unidadeDistribuicao === unidadeFiltro);
+            }
+            if (statusFiltro) {
+                dadosFiltrados = dadosFiltrados.filter(p => p.situacao === statusFiltro);
+            }
+            
+            atualizarGraficos();
+        }
+        
+        function limparFiltrosVisaoGeral() {
+            $('#filterCity').val('').trigger('change');
+            $('#filterUnidade').val('').trigger('change');
+            $('#filterStatus').val('');
+            
+            dadosFiltrados = [...dadosPlanilha];
+            atualizarGraficos();
+        }
+        
+        function aplicarFiltrosPaletes() {
+            atualizarTabelaPaletes();
+        }
+        
+        function limparFiltrosPaletes() {
+            $('#filterPedidoPaletes').val('').trigger('change');
+            $('#filterObjetoPaletes').val('').trigger('change');
+            $('#filterStatusPaletes').val('');
+            atualizarTabelaPaletes();
+        }
+        
+        function aplicarFiltrosEscolas() {
+            atualizarTabelaEscolas();
+        }
+        
+        function limparFiltrosEscolas() {
+            $('#filterPedidoEscolas').val('').trigger('change');
+            $('#filterUnidadeEscolas').val('').trigger('change');
+            atualizarTabelaEscolas();
+        }
+        
+        function aplicarFiltrosMeses() {
+            atualizarGraficos();
+            atualizarTabelaMensal();
+        }
+        
+        function limparFiltrosMeses() {
+            $('#filterPedidoMeses').val('').trigger('change');
+            $('#filterUnidadeMeses').val('').trigger('change');
+            dadosFiltrados = [...dadosPlanilha];
+            atualizarGraficos();
+            atualizarTabelaMensal();
+        }
+        
+        // ===== FUNÇÕES DE EXPORTAÇÃO =====
+        function exportarDadosCompletos() {
+            if (dadosPlanilha.length === 0) {
+                mostrarMensagem('error', 'Não há dados para exportar. Carregue um arquivo primeiro.');
+                return;
+            }
+            
+            try {
+                const ws = XLSX.utils.json_to_sheet(dadosPlanilha);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Paletes");
+                
+                const dataAtual = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(wb, `paletes_seduc_${dataAtual}.xlsx`);
+                
+                mostrarMensagem('success', `Arquivo exportado com sucesso! ${dadosPlanilha.length} registros.`);
+            } catch (error) {
+                mostrarMensagem('error', `Erro ao exportar: ${error.message}`);
+            }
+        }
+        
+        function exportarTabelaPaletes() {
+            // Obtém os dados atualmente visíveis na tabela
+            const dadosParaExportar = [];
+            const rows = paletesTableBody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length > 0) {
+                    dadosParaExportar.push({
+                        Objeto: cells[0].textContent,
+                        'Nota Fiscal': cells[1].textContent,
+                        Destinatário: cells[2].textContent,
+                        Cidade: cells[3].textContent,
+                        Postagem: cells[4].textContent,
+                        Entrega: cells[5].textContent,
+                        Situação: cells[6].textContent.replace(/[●\s]/g, ''),
+                        Unidade: cells[7].textContent
+                    });
+                }
+            });
+            
+            if (dadosParaExportar.length === 0) {
+                mostrarMensagem('error', 'Não há dados na tabela para exportar.');
+                return;
+            }
+            
+            try {
+                const ws = XLSX.utils.json_to_sheet(dadosParaExportar);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Paletes Filtrados");
+                
+                const dataAtual = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(wb, `paletes_filtrados_${dataAtual}.xlsx`);
+                
+                mostrarMensagem('success', `Tabela exportada com sucesso! ${dadosParaExportar.length} registros.`);
+            } catch (error) {
+                mostrarMensagem('error', `Erro ao exportar tabela: ${error.message}`);
+            }
+        }
+        
+        // ===== FUNÇÕES AUXILIARES =====
+        function mostrarMensagem(tipo, texto, permanente = false) {
+            messageArea.className = `message ${tipo}`;
+            messageArea.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${texto}</span>
+            `;
+            messageArea.classList.remove('hidden');
+            
+            if (!permanente) {
+                setTimeout(() => {
+                    messageArea.classList.add('hidden');
+                }, 5000);
+            }
+        }
+        
+        function carregarDadosExemplo() {
+            // Esta função é apenas para demonstração
+            // Em produção, deve ser removida
+            console.log('Carregando dados de exemplo para demonstração...');
+            
+            // Dados de exemplo
+            const dadosExemplo = [];
+            const cidades = ['SÃO PAULO', 'CAMPINAS', 'SANTOS', 'SÃO JOSÉ DOS CAMPOS', 'RIBEIRÃO PRETO'];
+            const unidades = ['CD SÃO PAULO', 'CD CAMPINAS', 'CD SANTOS', 'CD SJC', 'CD RIBEIRÃO PRETO'];
+            
+            for (let i = 1; i <= 50; i++) {
+                const notaFiscal = `51100${Math.floor(Math.random() * 12 + 1).toString().padStart(2, '0')}${(1000 + i).toString().padStart(5, '0')}`;
+                const objeto = `IA${(464098000 + i).toString().padStart(6, '0')}BR`;
+                const cidade = cidades[Math.floor(Math.random() * cidades.length)];
+                const unidade = unidades[Math.floor(Math.random() * unidades.length)];
+                const situacao = Math.random() > 0.3 ? 'Dentro do Prazo' : 'Fora do Prazo';
+                const mes = Math.floor(Math.random() * 12) + 1;
+                const ano = 2024;
+                
+                dadosExemplo.push({
+                    id: i,
+                    objeto: objeto,
+                    notaFiscal: notaFiscal,
+                    destinatario: `ESCOLA ESTADUAL EXEMPLO ${i}`,
+                    cidade: cidade,
+                    situacao: situacao,
+                    postagem: `15/${mes.toString().padStart(2, '0')}/${ano}`,
+                    entrega: `20/${mes.toString().padStart(2, '0')}/${ano}`,
+                    unidadeDistribuicao: unidade,
+                    logradouro: `RUA EXEMPLO ${i}, 123`
+                });
+            }
+            
+            // Simular processamento
+            dadosPlanilha = dadosExemplo;
+            dadosFiltrados = [...dadosPlanilha];
+            
+            // Processar datas
+            dadosPlanilha.forEach(palete => {
+                if (palete.postagem) {
+                    const dataPostagem = extrairData(palete.postagem);
+                    if (dataPostagem) {
+                        palete.mesAnoPostagem = `${dataPostagem.mesNome}/${dataPostagem.ano}`;
+                    }
+                }
+            });
+            
+            agruparPorEscola();
+            
+            // Atualizar interface
+            atualizarDashboard();
+            atualizarListasFiltros();
+            atualizarGraficos();
+            atualizarTabelas();
+            
+            lastUpdateElement.textContent = new Date().toLocaleString('pt-BR');
+            rowCountElement.textContent = `${dadosPlanilha.length} registros`;
+            
+            mostrarMensagem('info', 'Dados de exemplo carregados. Faça upload do seu arquivo Excel para usar dados reais.');
+        }
+    </script>
+</body>
+</html>
